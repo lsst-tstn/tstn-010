@@ -60,18 +60,23 @@ new additions to code at multiple levels to implement as a final version. In sho
 
 A general development flow, as viewed from the user, is as follows:
 
-    - Draft, test and flush-out their desired functionality in a notebook. This phase is discussed in
+    - Draft, test and flush-out their desired functionality in a notebook. This phase is discussed
+      in `notebooks`_.
 
       This may include creating drafts of functions (e.g. calculating offsets), performing calls to high-level classes
       (e.g. slew telescope)
+
     - Create observing utilities to perform specific tasks, which are sufficiently generic such that they may be used
       by other use-cases (e.g. find a star and put it on pixel [x,y].
+
     - Create a job, which is runnable by the Queue, to perform these tasks.
 
       Note that at this point the utilities may still be rough, and certain functionality might be better accomplished
       in lower classes (e.g. attcs) but that functionality does not yet exist.
-    - Request new functionality in lower-level control classes
-    - Migrate/evolve the utilities and Job to a production level for regular use
+
+    - Request new functionality in lower-level control classes.
+
+    - Migrate/evolve the utilities and Job to a production level for regular use.
 
 .. note::
 
@@ -82,26 +87,33 @@ A general development flow, as viewed from the user, is as follows:
 
 .. _notebooks:
 
-Notebooks
-=========
-Jupyter notebooks will be the primary tool used in commissioning. The environment permits the simultaneous control of
-observatory functionality and data reduction/analysis tasks. This is the natural starting point for development of ideas
-and demonstrating proof of concept(s). In the use-case referenced in this technote, the notebook is the starting point,
+Jupyter notebooks
+=================
+Jupyter notebooks (henceforth referred to as notebooks) will be the primary tool used in system verification
+and commissioning. The environment permits the simultaneous control of observatory functionality, data
+reduction/analysis tasks and documentation. This is the natural starting point for development of ideas
+and demonstrating proof of concept(s). In the use-case referenced in this technote, notebooks are the starting point,
 where the user is free to do as they wish with its structure/content etc.
 
-User's notebooks are currently stored in the `ts_notebooks` repository. There is also a section where individuals create
-directories with their identifying name (e.g. pingraham). Committing content to these directories still requires a
-PR, but only to ensure that no modifications are made to other parts of the repo. Notebooks should be cleared of all
-data prior to committing to keep the repo size from ballooning. The repo also holds a series of `examples` which range
-in from telescope operation to EFD mining/analysis. Because these are used by multiple people they do go through a
-PR process with a more rigorous review.
+User's notebooks are currently stored in the `ts_notebooks <https://github.com/lsst-ts/ts_notebooks>`_ repository.
+There is also a section where individuals create
+directories with their identifying name (e.g. pingraham). Notebooks should be cleared of all
+data prior to committing/pushing, to prevent the repo size from ballooning.
+The repo also holds a series of `examples` which ranges in from telescope operation to EFD mining/analysis.
+
+Users should still follow the T&S development guidelines when using this repo. That means, create a ticket
+branch to work on, commit code and, once ready, open a PR to have their work integrated to the
+`develop` branch. Content added to the users directory are still subjected to the PR process but only
+to guarantee that the content was cleared out and that no changes where made to other users
+content (without permission). Contents in the `examples` directory will be subject to a more
+rigorous review process.
 
 It is understood that the practice of storing notebooks, particularly the personal notebooks, will not scale into
 commissioning. It is anticipated that this repo will split
 into multiple components such as example notebooks, operations-focused notebooks (where they will be run by operators
 to diagnose or characterize certain behaviour), and personal notebooks. The details of this organization are beyond the
-scope of this technote. Until the re-organisation is completed, tags will be made of the repo every ~6 months, after
-which all files larger than 20 MB (TBR) or older than 1 year will be deleted from the develop branch.
+scope of this technote. Until the re-organisation is completed, tags will be made of the repo at least every ~6 months,
+after which all files larger than 20 MB (TBR) or older than 1 year will be deleted from the develop branch.
 
 
 .. _Observing_Utilities:
@@ -134,17 +146,21 @@ with deprecation dates that are 60 (TBD) past will be removed.
     this repo must be cleaned of any dependencies.
 
 
+.. Note::
+
+    There is a `Python library <https://pypi.org/project/deprecation/>`_ available that allows developers and users to
+    mark methods for deprecation using a decorator. It may be worth considering using this library as a standard practice.
+
 
 .. _Control Classes:
 
 Control Classes
 ===============
-Control Classes are perform coordination of CSC functionality at a high-level. An example of such an operation
+Control Classes perform coordination of CSC functionality at a high-level. An example of such an operation
 is slewing the telescope and dome, discussed in more detail below. Because these classes are used throughout many
-areas of operations, high level of unit and integration testing required,
-especially if utilities contained outside the class. High-level control classes live their own repository
+areas of operations, high level of unit and integration testing are required,
+especially if utilities are contained outside the class. High-level control classes live in their own repository
 (`ts_observatory_control`). These classes are written and tightly controlled by the T&S team.
-
 
 In the example use-case for this Tech note, the user wishes to take images with multiple instrument setups. Because the
 focus changes with
@@ -157,15 +173,15 @@ the user should file a JIRA ticket with the requested functionality for review. 
 the functionality should indeed be implemented. Upon conclusion of that discussion, a user can either wait for it to be
 implemented or make the changes themselves and submit a pull-request.
 
-In this meantime, the utility in `ts_observing_utilities` must remain until the functionality gets included in the
-control-classes. Once included, the utility could be deprecated.
+In the meantime, the utility in `ts_observing_utilities` must remain until the functionality gets included in the
+control-classes. Once included, the utility could be deprecated and the appropriate code updated accordingly.
 
 ATTCS
 -----
 The `ATTCS class <https://github.com/lsst-ts/ts_standardscripts/blob/develop/python/
 lsst/ts/standardscripts/auxtel/attcs.py>`_ contains methods that coordinate telescope and dome related CSCs. The class
 includes methods that
-capture complex activities in single lines of executable code  such as slewing the telescope and dome (shown in the
+capture complex activities in single lines of executable code such as slewing the telescope and dome (shown in the
 example below), offsetting in multiple coordinate systems, starting/stopping of tracking etc.
 Any Required low-level functionality should be pushed into these classes.
 
@@ -182,6 +198,16 @@ Any Required low-level functionality should be pushed into these classes.
     await attcs.start_task
     await attcs.slew_icrs(ra="20:25:38.85705", dec="-56:44:06.3230", sky_pos=0., target_name="Alf Pav")
 
+Alternatively, the `ATTCS` class also provides a `slew_object` method that queries
+the object coordinate from `Simbad <http://simbad.u-strasbg.fr/simbad/>`_.
+
+.. code-block:: python
+
+    from lsst.ts.standardscripts.auxtel.attcs import ATTCS
+    attcs = ATTCS()
+    await attcs.start_task
+    await attcs.slew_object(name="Alf Pav", sky_pos=0.)
+
 
 LATISS
 ------
@@ -195,7 +221,7 @@ are captured correctly.
     from lsst.ts.standardscripts.auxtel.latiss import LATISS
     latiss = LATISS()
     await latiss.start_task
-    endReadout = await latiss.take_engtest(exptime=10, filter='RG06', grating='empty_1')
+    exp_id = await latiss.take_engtest(exptime=10, filter='RG06', grating='empty_1')
 
 
 .. _Control Utilities:
@@ -225,12 +251,12 @@ The utilities will live in the `ts_observatory_control` repo with the Control Cl
 Jobs for the Queue
 ==================
 
-The Queue (currently scriptQueue) is the mechanism to run scripts in an automated fashion during commissioning and
+The Queue (currently ScriptQueue) is the mechanism to run scripts in an automated fashion during commissioning and
 operations. The level of robustness required for these scripts is divided among those still in development, and those
 which are in full production.
 
 
-Jobs in Development (ts_externalScripts)
+Jobs in Development (ts_externalscripts)
 -----------------------------------------
 Jobs (scripts) undergoing development live in the `ts_queueJobsDevelop` repo. While in this repo, the scripts are
 permitted to call utilities in the `Observing Utilities`_ repository as it will often be the case that the user is
@@ -257,7 +283,7 @@ changes the deprecation date in the utility. The default extension is 4 weeks. T
     This would make it straightforward to know who should be involved in reviewing PRs.
     Unfortunately, I'm not sure how to (easily) do that.
 
-Jobs in Production (ts_standardScripts)
+Jobs in Production (ts_standardscripts)
 -----------------------------------------
 Jobs (scripts) in full production are to be kept in the `ts_queueJobs` repository. This is the last step in the
 development process. Scripts in this category are tightly controlled and standards are strictly enforced. No production
@@ -266,7 +292,7 @@ Utilities.
 
 .. note::
 
-    The ts_standardScripts repo currently holds the production scripts but can/should be renamed.
+    The ts_standardscripts repo currently holds the production scripts but can/should be renamed.
 
 
 Required Unit Testing
