@@ -100,7 +100,8 @@ It is understood that the practice of storing notebooks, particularly the person
 commissioning. It is anticipated that this repo will split
 into multiple components such as example notebooks, operations-focused notebooks (where they will be run by operators
 to diagnose or characterize certain behaviour), and personal notebooks. The details of this organization are beyond the
-scope of this technote.
+scope of this technote. Until the re-organisation is completed, tags will be made of the repo every ~6 months, after
+which all files larger than 20 MB (TBR) or older than 1 year will be deleted from the develop branch.
 
 
 .. _Observing_Utilities:
@@ -221,8 +222,8 @@ The utilities will live in the `ts_observatory_control` repo with the Control Cl
 
 .. _Tasks:
 
-Jobs for Queue
-===============
+Jobs for the Queue
+==================
 
 The Queue (currently scriptQueue) is the mechanism to run scripts in an automated fashion during commissioning and
 operations. The level of robustness required for these scripts is divided among those still in development, and those
@@ -236,6 +237,11 @@ permitted to call utilities in the `Observing Utilities`_ repository as it will 
 developing utilities to be used with a Job. Of course, it may also call any of the Control Classes or utilities. Scripts
 in this area are expected to follow a standard format/template and conform to proper standards (PEP8 and appropriate
 LSST Development Guides). Pushing from a ticket branch to the develop branch of the repo requires a review (PR).
+
+There will (probably) exist cases where a Job will never be promoted to a production task. In this case, the jobs must
+be identified as such and will be subject to a higher level of documentation and required unit testing,
+particularly against any possible utilities that may be deprecated. Significant effort should be made to ensure
+that any persistent Jobs in this repo do not require anything in the `Observing Utilities`_ repository.
 
 Required Unit Testing
 ^^^^^^^^^^^^^^^^^^^^^
