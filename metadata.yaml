@@ -13,7 +13,7 @@ serial_number: "010"
 doc_id: "TSTN-010"
 
 # Title of the document, without the series/serial designation
-doc_title: "Observing Script and Method Development Cycle"
+doc_title: "Notebooks, Observing Scripts and Utilities Development Cycle"
 
 # Author names, ordered as a list. Each author name should be formatted as 'First Last'
 authors:

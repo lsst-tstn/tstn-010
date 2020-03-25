@@ -41,15 +41,15 @@
 
 Introduction
 ===============
-This Technote is to detail out the observing script and notebook development cycle from a simple test
+This technote is to detail out the observing scripts (jobs) and notebook development cycle from a simple test
 or idea, developed inside a notebook, to evolving into a method that could be called by other
-notebooks, and/or into a script to be called via the scriptQueue, and finally to the level of being a sanctioned and
+notebooks, and/or into a script to be called via the scriptQueue, then finally to the level of being a sanctioned and
 regularly maintained Job as part of operations.
 
 Details for each step include which repos should be used for the different aspects of development and the level of
-testing/review required at each stage. The note is built upon a sample usecase which was encountered early-on in the
+testing/review required at each stage. The note is built upon a sample use-case which was encountered early on in the
 commissioning phase of the AuxTel, where a user wants to derive a high-level piece of functionality which requires
-new additions to code at multiple levels to implement as a final version. In short, the use case is to:
+new additions to code at multiple levels to implement as a final production script. In short, the use-case is:
 
     - Slew to a target
     - Take an image and perform basic ISR such that it can be analyzed.
@@ -58,23 +58,22 @@ new additions to code at multiple levels to implement as a final version. In sho
     - Perform a series of observations using multiple instrument setups and exposure times.
       This will also require changing telescope focus (and pointing) for each setup.
 
-A general development flow, as viewed from the user, is as follows:
+A general overview of the development flow, as viewed from the user, is as follows:
 
-    - Draft, test and flush-out their desired functionality in a notebook. This phase is discussed
-      in `notebooks`_.
+    - Draft, test and flush-out their desired functionality in a notebook.
 
       This may include creating drafts of functions (e.g. calculating offsets), performing calls to high-level classes
       (e.g. slew telescope)
 
-    - Create observing utilities to perform specific tasks, which are sufficiently generic such that they may be used
-      by other use-cases (e.g. find a star and put it on pixel [x,y].
+    - Create observing utilities to perform specific tasks, which may be sufficiently generic such that they may be used
+      by other use-cases (e.g. find a star and put it on pixel [x,y]).
 
     - Create a job, which is runnable by the Queue, to perform these tasks.
 
       Note that at this point the utilities may still be rough, and certain functionality might be better accomplished
       in lower classes (e.g. attcs) but that functionality does not yet exist.
 
-    - Request new functionality in lower-level control classes.
+    - Request new functionality in lower-level control classes (e.g. attcs)
 
     - Migrate/evolve the utilities and Job to a production level for regular use.
 
@@ -108,6 +107,10 @@ to guarantee that the content was cleared out and that no changes where made to 
 content (without permission). Contents in the `examples` directory will be subject to a more
 rigorous review process.
 
+.. note::
+
+    Ideally, example notebooks would also have a sort of testing to ensure functionality remains over time.
+
 It is understood that the practice of storing notebooks, particularly the personal notebooks, will not scale into
 commissioning. It is anticipated that this repo will split
 into multiple components such as example notebooks, operations-focused notebooks (where they will be run by operators
@@ -121,8 +124,9 @@ after which all files larger than 20 MB (TBR) or older than 1 year will be delet
 Observing Utilities
 ====================
 
-Observing utilities are user-defined methods that perform tasks that are not already part of the code base that operates
-the observatory (the `Control Classes`_ discusses this in further detail). An example of functionality contained in a
+Observing utilities are user-defined methods that perform tasks that are not already part of the control classes code
+base that operates the observatory (the `Control Classes`_ discusses this in further detail).
+An example of functionality contained in a
 utility would be the reduction/analysis of an image. In the use-case discussed in this document, the user defines
 methods that perform basic ISR on an image, finds the center of the star, and calculates the required offset.
 
@@ -133,11 +137,11 @@ merged to the develop branch. This area is designed to act as a staging area pri
 moved into control classes, or promoted to sanctioned utilities which would be contained in the
 `ts_observatory_controls` repo (discussed in `Control Classes`_ section).
 
-The development practices of this area are purposefully loose to promote rapid development and integration. Although
+The development practices of this area are purposefully loose to promote rapid coding and integration. Although
 functions should follow a generic standard, the only strict requirement is that each function possess a deprecation
 date. This is required to guard against bit-rot. As will be discussed below, all scripts under development must have
-unit tests to verify the desired utilities are not expiring. This is discussed further in `Control Utilities`_. Utilities
-with deprecation dates that are 60 (TBD) past will be removed.
+unit tests to verify the desired utilities are not expiring. This is discussed further in `Control Utilities`_.
+Utilities with deprecation dates that are 60 (TBD) days past will be removed.
 
 .. Important::
 
@@ -149,7 +153,8 @@ with deprecation dates that are 60 (TBD) past will be removed.
 .. Note::
 
     There is a `Python library <https://pypi.org/project/deprecation/>`_ available that allows developers and users to
-    mark methods for deprecation using a decorator. It may be worth considering using this library as a standard practice.
+    mark methods for deprecation using a decorator. It may be worth considering using this library as a standard
+    practice.
 
 
 .. _Control Classes:
@@ -158,14 +163,14 @@ Control Classes
 ===============
 Control Classes perform coordination of CSC functionality at a high-level. An example of such an operation
 is slewing the telescope and dome, discussed in more detail below. Because these classes are used throughout many
-areas of operations, high level of unit and integration testing are required,
+areas of operations, high levels of unit and integration testing are required;
 especially if utilities are contained outside the class. High-level control classes live in their own repository
 (`ts_observatory_control`). These classes are written and tightly controlled by the T&S team.
 
-In the example use-case for this Tech note, the user wishes to take images with multiple instrument setups. Because the
+In the example use-case for this technote, the user wishes to take images with multiple instrument setups. Because the
 focus changes with
 different glass thicknesses and wavelength, this is the type of functionality that really should belong in the standard
-control-classes. However, while this usecase was being developed, that functionality didn't exist and was therefore
+control-classes. However, while this use-case was being developed, that functionality didn't exist and was therefore
 contained in a utility (in `ts_observing_utilities`).
 
 To remedy this, the proper path forward is to request that the additional functionality be added. To do this,
