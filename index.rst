@@ -77,6 +77,16 @@ A general overview of the development flow, as viewed from the user, is as follo
 
     - Migrate/evolve the utilities and Job to a production level for regular use.
 
+How the workflow moves through the various repositories is represented by the following diagram, where each of the
+sections is discussed in detail below.
+
+.. figure:: _static/notebook_and_queueJob_workflow_diagram.jpg
+    :width: 600px
+    :align: center
+    :alt: Workflow Summary
+
+    A visual overview of the workflow process, starting from an original idea first demonstrated in a Jupyter notebook.
+
 .. note::
 
     This technote avoids the use of the term "scripts" and also assumes the current scriptQueue has been renamed. The
@@ -109,7 +119,9 @@ rigorous review process.
 
 .. note::
 
-    Ideally, example notebooks would also have a sort of testing to ensure functionality remains over time.
+    Ideally, example notebooks would also have a sort of testing to ensure functionality remains over time. DM is
+    working on a solution but it would mandate the notebooks can be run on the LSP. If we can make the notebooks
+    run on the ncsa-integration-teststand then hopefully this same test method can be applied.
 
 It is understood that the practice of storing notebooks, particularly the personal notebooks, will not scale into
 commissioning. It is anticipated that this repo will split
@@ -117,6 +129,12 @@ into multiple components such as example notebooks, operations-focused notebooks
 to diagnose or characterize certain behaviour), and personal notebooks. The details of this organization are beyond the
 scope of this technote. Until the re-organisation is completed, tags will be made of the repo at least every ~6 months,
 after which all files larger than 20 MB (TBR) or older than 1 year will be deleted from the develop branch.
+
+.. note::
+
+    Another suggestion is to use git-lfs for large files, or the personal folders in the repo. This needs further
+    exploration. A copy would need to be available at the summit should the network go down.
+
 
 
 .. _Observing_Utilities:
@@ -131,7 +149,7 @@ utility would be the reduction/analysis of an image. In the use-case discussed i
 methods that perform basic ISR on an image, finds the center of the star, and calculates the required offset.
 
 The repo sanctioned for the development and use of such functions is the `ts_observing_utilities` repo, which follows
-a standard package format such as used with `ts_standardscripts <https://github.com/lsst-ts/ts_standardscripts>`_.
+an `LSST standard package format <https://github.com/lsst/templates>`_.
 Users develop their functions on a branch and the functions must go through a review (PR) process prior to being
 merged to the develop branch. This area is designed to act as a staging area prior to having their functionality either
 moved into control classes, or promoted to sanctioned utilities which would be contained in the
@@ -165,7 +183,7 @@ Control Classes perform coordination of CSC functionality at a high-level. An ex
 is slewing the telescope and dome, discussed in more detail below. Because these classes are used throughout many
 areas of operations, high levels of unit and integration testing are required;
 especially if utilities are contained outside the class. High-level control classes live in their own repository
-(`ts_observatory_control`). These classes are written and tightly controlled by the T&S team.
+(`ts_observatory_controls`). These classes are written and tightly controlled by the T&S team.
 
 In the example use-case for this technote, the user wishes to take images with multiple instrument setups. Because the
 focus changes with
@@ -179,7 +197,7 @@ the functionality should indeed be implemented. Upon conclusion of that discussi
 implemented or make the changes themselves and submit a pull-request.
 
 In the meantime, the utility in `ts_observing_utilities` must remain until the functionality gets included in the
-Control Classes. Once included, the utility could be deprecated and the appropriate code updated accordingly.
+Control Classes. Once included, the utility should be deprecated and the appropriate code updated accordingly.
 
 ATTCS
 -----
@@ -231,12 +249,12 @@ are captured correctly.
 
 .. _Control Utilities:
 
-Control Utilities
------------------
+Control Class Utilities
+-----------------------
 
-Control utilities are analogous to the utilities discussed in `Observing Utilities`_, but have been evolved and moved
-into production code. Sanctioned Control Utilities will exist at multiple levels. These utilities will primarily be
-called by jobs for the Queue, but not in all cases.
+Control Class Utilities are analogous to the utilities discussed in `Observing Utilities`_, but have been evolved and
+moved into the production code areas. Sanctioned Control Class Utilities will exist at multiple levels.
+These utilities will primarily be called by jobs for the Queue, but not in all cases.
 Top level utilities will apply to both telescopes, all instruments, then each level down will have it's own utilities.
 An example of this could (not necessarily will) be the centering utility described above, since the desired
 position for stars in LATISS will differ from the main telescope.
@@ -245,8 +263,12 @@ Control Utilities all require unit tests, many of which will require data to per
 repo/place where this data is stored.
 
 .. TODO::
-    DM has developed a way to do this, we should start this discussion. We might need a sample EFD set to go with the
-    data as well.
+    DM has developed a way to do this, we should explore if this solution works for this case as well.
+    For test data used in unit tests DM uses git-lfs to store repositories that are set up as eups packages.
+    Another possible solution is Travis, which is useds to test the LSST EFD helper class.
+    Docker spins a temporary influxDB instance and loads test EFD data into it. A similar pattern could be loaded
+    to test code that needs EFD data.
+
 
 The utilities will live in the `ts_observatory_control` repo with the Control Classes.
 
