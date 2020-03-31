@@ -98,7 +98,7 @@ User's notebooks are currently stored in the `ts_notebooks <https://github.com/l
 There is also a section where individuals create
 directories with their identifying name (e.g. pingraham). Notebooks should be cleared of all
 data prior to committing/pushing, to prevent the repo size from ballooning.
-The repo also holds a series of `examples` which ranges in from telescope operation to EFD mining/analysis.
+The repo also holds a series of `examples` which ranges from telescope operation to EFD mining/analysis.
 
 Users should still follow the T&S development guidelines when using this repo. That means, create a ticket
 branch to work on, commit code and, once ready, open a PR to have their work integrated to the
@@ -125,7 +125,7 @@ Observing Utilities
 ====================
 
 Observing utilities are user-defined methods that perform tasks that are not already part of the control classes code
-base that operates the observatory (the `Control Classes`_ discusses this in further detail).
+base that operates the observatory (the `Control Classes`_ section discusses this in further detail).
 An example of functionality contained in a
 utility would be the reduction/analysis of an image. In the use-case discussed in this document, the user defines
 methods that perform basic ISR on an image, finds the center of the star, and calculates the required offset.
@@ -170,7 +170,7 @@ especially if utilities are contained outside the class. High-level control clas
 In the example use-case for this technote, the user wishes to take images with multiple instrument setups. Because the
 focus changes with
 different glass thicknesses and wavelength, this is the type of functionality that really should belong in the standard
-control-classes. However, while this use-case was being developed, that functionality didn't exist and was therefore
+Control Classes. However, while this use-case was being developed, that functionality didn't exist and was therefore
 contained in a utility (in `ts_observing_utilities`).
 
 To remedy this, the proper path forward is to request that the additional functionality be added. To do this,
@@ -179,7 +179,7 @@ the functionality should indeed be implemented. Upon conclusion of that discussi
 implemented or make the changes themselves and submit a pull-request.
 
 In the meantime, the utility in `ts_observing_utilities` must remain until the functionality gets included in the
-control-classes. Once included, the utility could be deprecated and the appropriate code updated accordingly.
+Control Classes. Once included, the utility could be deprecated and the appropriate code updated accordingly.
 
 ATTCS
 -----
@@ -277,7 +277,7 @@ that any persistent Jobs in this repo do not require anything in the `Observing 
 Required Unit Testing
 ^^^^^^^^^^^^^^^^^^^^^
 
-All Jobs in development must (at a minimum) include a unit test that checks for deprecations warnings of utilities.
+All Jobs in development must (at a minimum) include a unit test that checks for a deprecation warning from utilities.
 Should the test fail due the deprecation date passing, the only way to pass the test is to file a PR that
 changes the deprecation date in the utility. The default extension is 4 weeks. This is done to prevent bit-rot in the
 `Observing Utilities`_ repository.
