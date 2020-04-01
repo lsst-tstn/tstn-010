@@ -146,7 +146,10 @@ Observing utilities are user-defined methods that perform tasks that are not alr
 base that operates the observatory (the `Control Classes`_ section discusses this in further detail).
 An example of functionality contained in a
 utility would be the reduction/analysis of an image. In the use-case discussed in this document, the user defines
-methods that perform basic ISR on an image, finds the center of the star, and calculates the required offset.
+methods that perform basic ISR on an image, finds the center of the star, and calculates the required offset. In the
+cases where image reduction and/or analysis is required, specifically for ComCam and LSSTCamera images, the
+processing will utilize the `OCS Controlled Pipeline Service (OCPS) <https://dmtn-133.lsst.io/>`_, which is still
+undergoing development.
 
 The repo sanctioned for the development and use of such functions is the `ts_observing_utilities` repo, which follows
 an `LSST standard package format <https://github.com/lsst/templates>`_.
@@ -163,8 +166,8 @@ Utilities with deprecation dates that are 60 (TBD) days past will be removed.
 
 .. Important::
 
-    Anything is this repo is *not* allowed to be called in production level Jobs (scripts) that are to be run by the
-    Queue. Should a Job (script) be promoted from `ts_queueJobsDevelop` to `ts_queueJobs` (discussed below) then
+    Anything is this repo is *not* allowed to be called by production level Jobs (scripts) that are to be executed
+    by the Queue. Should a Job (script) be promoted from `ts_queueJobsDevelop` to `ts_queueJobs` (discussed below) then
     this repo must be cleaned of any dependencies.
 
 
