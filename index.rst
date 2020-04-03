@@ -41,15 +41,16 @@
 
 Introduction
 ===============
-This technote is to detail out the observing scripts (jobs) and notebook development cycle from a simple test
+This technote is to detail out the observing jobs (previously known as scripts or SAL scripts)
+and notebook development cycle from a simple test
 or idea, developed inside a notebook, to evolving into a method that could be called by other
-notebooks, and/or into a script to be called via the scriptQueue, then finally to the level of being a sanctioned and
+notebooks, and/or into a Job to be called via the Queue, then finally to the level of being a sanctioned and
 regularly maintained Job as part of operations.
 
 Details for each step include which repos should be used for the different aspects of development and the level of
 testing/review required at each stage. The note is built upon a sample use-case which was encountered early on in the
 commissioning phase of the AuxTel, where a user wants to derive a high-level piece of functionality which requires
-new additions to code at multiple levels to implement as a final production script. In short, the use-case is:
+new additions to code at multiple levels to implement as a final production Job. In short, the use-case is:
 
     - Slew to a target
     - Take an image and perform basic ISR such that it can be analyzed.
@@ -89,9 +90,9 @@ sections is discussed in detail below.
 
 .. note::
 
-    This technote avoids the use of the term "scripts" and also assumes the current scriptQueue has been renamed. The
-    reasoning behind this is that "scripts" is an overloaded word where each person has their own interpretation where
-    the general tendency is to assume a bash-script type of execution.
+    This technote avoids the use of the term "scripts" and also assumes the current scriptQueue has been renamed to
+    "Queue". The reasoning behind this is that "scripts" is an overloaded word where each person has their own
+    interpretation where the general tendency is to assume a bash-script type of execution.
 
 
 .. _notebooks:
@@ -160,14 +161,14 @@ moved into control classes, or promoted to sanctioned utilities which would be c
 
 The development practices of this area are purposefully loose to promote rapid coding and integration. Although
 functions should follow a generic standard, the only strict requirement is that each function possess a deprecation
-date. This is required to guard against bit-rot. As will be discussed below, all scripts under development must have
+date. This is required to guard against bit-rot. As will be discussed below, all Jobs under development must have
 unit tests to verify the desired utilities are not expiring. This is discussed further in `Control Utilities`_.
 Utilities with deprecation dates that are 60 (TBD) days past will be removed.
 
 .. Important::
 
-    Anything is this repo is *not* allowed to be called by production level Jobs (scripts) that are to be executed
-    by the Queue. Should a Job (script) be promoted from `ts_queueJobsDevelop` to `ts_queueJobs` (discussed below) then
+    Anything is this repo is *not* allowed to be called by production level Jobs that are to be executed
+    by the Queue. Should a Job be promoted from `ts_queueJobsDevelop` to `ts_queueJobs` (discussed below) then
     this repo must be cleaned of any dependencies.
 
 
@@ -281,18 +282,19 @@ The utilities will live in the `ts_observatory_control` repo with the Control Cl
 Jobs for the Queue
 ==================
 
-The Queue (currently ScriptQueue) is the mechanism to run scripts in an automated fashion during commissioning and
-operations. The level of robustness required for these scripts is divided among those still in development, and those
+The Queue is the mechanism to run Jobs in an automated fashion during commissioning and
+operations. The level of robustness required for these Jobs is divided among those still in development, and those
 which are in full production.
 
 
-Jobs in Development (ts_externalscripts)
------------------------------------------
-Jobs (scripts) undergoing development live in the `ts_queueJobsDevelop` repo. While in this repo, the scripts are
+Jobs in Development
+-------------------
+Jobs (scripts) undergoing development live in the `ts_queueJobsDevelop` repo. While in this repo, the Jobs are
 permitted to call utilities in the `Observing Utilities`_ repository as it will often be the case that the user is
-developing utilities to be used with a Job. Of course, it may also call any of the Control Classes or utilities. Scripts
-in this area are expected to follow a standard format/template and conform to proper standards (PEP8 and appropriate
-LSST Development Guides). Pushing from a ticket branch to the develop branch of the repo requires a review (PR).
+developing utilities to be used with a Job. Of course, it may also call any of the Control Classes or utilities. Jobs
+and utilities in these areas are expected to follow a standard format/template and conform to proper standards
+(PEP8 and appropriate LSST Development Guides). Pushing from a ticket branch to the develop branch of the repo
+requires a review (PR).
 
 There will (probably) exist cases where a Job will never be promoted to a production task. In this case, the jobs must
 be identified as such and will be subject to a higher level of documentation and required unit testing,
@@ -313,16 +315,16 @@ changes the deprecation date in the utility. The default extension is 4 weeks. T
     This would make it straightforward to know who should be involved in reviewing PRs.
     Unfortunately, I'm not sure how to (easily) do that.
 
-Jobs in Production (ts_standardscripts)
------------------------------------------
-Jobs (scripts) in full production are to be kept in the `ts_queueJobs` repository. This is the last step in the
-development process. Scripts in this category are tightly controlled and standards are strictly enforced. No production
-level script can call any utility in the `Observing Utilities`_ repository. All utilities must be sanctioned Control
+Jobs in Production
+------------------
+Jobs in full production are to be kept in the `ts_queueJobs` repository. This is the last step in the
+development process. Jobs in this category are tightly controlled and standards are strictly enforced. No production
+level Job can call any utility in the `Observing Utilities`_ repository. All utilities must be sanctioned Control
 Utilities.
 
 .. note::
 
-    The ts_standardscripts repo currently holds the production scripts but can/should be renamed.
+    The ts_standardscripts repo currently holds the production Jobs but will be renamed.
 
 
 Required Unit Testing
