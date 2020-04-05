@@ -47,27 +47,29 @@ or idea, developed inside a notebook, to evolving into a method that could be ca
 notebooks, and/or into a Job to be called via the Queue, then finally to the level of being a sanctioned and
 regularly maintained Job as part of operations.
 
-Details for each step include which repos should be used for the different aspects of development and the level of
+Documented below are the details for each step include which repos should be used for the different aspects of
+development and the level of
 testing/review required at each stage. The note is built upon a sample use-case which was encountered early on in the
 commissioning phase of the AuxTel, where a user wants to derive a high-level piece of functionality which requires
 new additions to code at multiple levels to implement as a final production Job. In short, the use-case is:
 
     - Slew to a target
-    - Take an image and perform basic ISR such that it can be analyzed.
-    - Find the brightest point source in the image, determine its location, calculate the telescope offset required to
+    - Take an image and perform basic ISR such that it can be analyzed, notably bias subtraction and cosmic ray
+      rejection/interpolation.
+    - Find the brightest point source in the image and calculate the telescope offset required to
       put the star on a specific pixel (within a tolerance).
     - Perform a series of observations using multiple instrument setups and exposure times.
-      This will also require changing telescope focus (and pointing) for each setup.
+      This will also require changing telescope focus (and pointing) for each filter/grating configuration.
 
 A general overview of the development flow, as viewed from the user, is as follows:
 
     - Draft, test and flush-out their desired functionality in a notebook.
 
       This may include creating drafts of functions (e.g. calculating offsets), performing calls to high-level classes
-      (e.g. slew telescope)
+      (e.g. slew telescope) etc.
 
     - Create observing utilities to perform specific tasks, which may be sufficiently generic such that they may be used
-      by other use-cases (e.g. find a star and put it on pixel [x,y]).
+      by other use-cases (e.g. the function of finding a star and calculating the offset to pixel [x,y]).
 
     - Create a job, which is runnable by the Queue, to perform these tasks.
 
@@ -76,7 +78,7 @@ A general overview of the development flow, as viewed from the user, is as follo
 
     - Request new functionality in lower-level control classes (e.g. attcs)
 
-    - Migrate/evolve the utilities and Job to a production level for regular use.
+    - Migrate/evolve the utilities and Job to a production level for regular use with the Queue
 
 How the workflow moves through the various repositories is represented by the following diagram, where each of the
 sections is discussed in detail below.
@@ -89,7 +91,7 @@ sections is discussed in detail below.
     A visual overview of the workflow process, starting from an original idea first demonstrated in a Jupyter notebook.
 
 The two-tiered development strategy is being adopted to facilitate maximum flexibility to implement changes on
-short timescales. The development area gives users full range to simultaneously operate across multiple
+short timescales. The staging (or development) area gives users full range to simultaneously operate across multiple
 versions/branches with unhindered flexibility. This is especially important for commissioning activities where rapid
 code changes are required and temporary implementation is required which will break other people's code in the same
 area.
@@ -114,14 +116,15 @@ testing in order to ensure that changes made in one area do not result in breaki
 Jupyter notebooks
 =================
 Jupyter notebooks (henceforth referred to as notebooks) will be the primary tool used in system verification
-and commissioning. The environment permits the simultaneous control of observatory functionality, data
-reduction/analysis tasks and documentation. This is the natural starting point for development of ideas
+and commissioning. The use of them is not strictly required, however the environment permits the simultaneous
+control of observatory functionality, data reduction/analysis tasks and documentation and is supported by the project.
+This is the natural starting point for development of ideas
 and demonstrating proof of concept(s). In the use-case referenced in this technote, notebooks are the starting point,
 where the user is free to do as they wish with its structure/content etc.
 
 User's notebooks are currently stored in the `ts_notebooks <https://github.com/lsst-ts/ts_notebooks>`_ repository.
 There is also a section where individuals create
-directories with their identifying name (e.g. pingraham). Notebooks should be cleared of all
+directories with their identifying name (e.g. pingraham or tribeiro). Notebooks should be cleared of all
 data prior to committing/pushing, to prevent the repo size from ballooning.
 The repo also holds a series of `examples` which ranges from telescope operation to EFD mining/analysis.
 
@@ -140,7 +143,7 @@ rigorous review process and will require continuous integration (CI) testing.
 
 .. note::
     Mocking CSC or control class functionality may be required to perform tests will real data. Mocks are also useful
-    in other aspects of development. The usefulness and functionality of hte mocks has been demonstrated but additional
+    in other aspects of development. The usefulness and functionality of the mocks has been demonstrated but additional
     work is required to fully incorporate them into the development workflow.
 
 It is understood that the practice of storing notebooks, particularly the personal notebooks, will not scale into
@@ -152,7 +155,7 @@ after which all files larger than 20 MB (TBR) or older than 1 year will be delet
 
 .. note::
 
-    Another suggestion is to use git-lfs for large files, or the personal folders in the repo. This needs further
+    Another suggestion is to use git-lfs for large files in the repo. This needs further
     exploration. A copy would need to be available at the summit should the network go down.
 
 
@@ -168,7 +171,7 @@ utility would be the reduction/analysis of an image. In the use-case discussed i
 methods that perform basic ISR on an image, finds the center of the star, and calculates the required offset. In the
 cases where image reduction and/or analysis is required, specifically for ComCam and LSSTCamera images, the
 processing will utilize the `OCS Controlled Pipeline Service (OCPS) <https://dmtn-133.lsst.io/>`_, which is still
-undergoing development.
+undergoing design and development. More details on it's use during development will be added once available.
 
 The repo sanctioned for the development and use of such functions is the `ts_observing_utilities` repo, which follows
 an `LSST standard package format <https://github.com/lsst/templates>`_.
@@ -193,7 +196,7 @@ at a level such that other people can identify what it does, as well as the inpu
 .. Note::
 
     There is a `Python library <https://pypi.org/project/deprecation/>`_ available that allows developers and users to
-    mark methods for deprecation using a decorator. It may be worth considering using this library.
+    mark methods for deprecation using a decorator. It may be worth considering using this library to prevent bit-rot.
 
 
 .. _Control Packages:
@@ -212,7 +215,7 @@ In the example use-case for this technote, the user wishes to take images with m
 focus changes with
 different glass thicknesses and wavelength, this is the type of functionality that really should belong in the standard
 Control Package. However, while this use-case was being developed, that functionality didn't exist and was therefore
-contained in a utility (in `ts_observing_utilities`).
+developed in a utility (in `ts_observing_utilities`).
 
 To remedy this, the proper path forward is to request that the additional functionality be added. To do this,
 the user should file a JIRA ticket with the requested functionality for review. This will trigger discussion on whether
@@ -282,7 +285,7 @@ Control Package Utilities
 Control Package Utilities are analogous to the utilities discussed in `Observing Utilities`_, but have been evolved and
 moved into the production code areas. Sanctioned Control Utilities will exist at multiple levels.
 These utilities will primarily be called by jobs for the Queue, but not in all cases.
-Top level utilities will apply to both telescopes, all instruments, then each level down will have it's own utilities.
+Top-level utilities will apply to both telescopes, all instruments, then each level down will have it's own utilities.
 An example of this could (not necessarily will) be the centering utility described above, since the desired
 position for stars in LATISS will differ from the main telescope.
 
@@ -297,13 +300,13 @@ Required Testing
 
 All code in the `ts_observatory_control` requires documentation to a level where other developers can diagnose the
 utility and fix any issues that are resulting in failed tests. This must include a description of the utility, a
-description of the inputs/outputs, and depending on the complexity of the function an example may be required.
+description of the inputs/outputs, and depending on the complexity of the function, examples may be required.
 
-Each utility must come with a set of tests (and test data if required), tests must include:
+Each utility must come with a set of tests (and accompanying data if required), tests must include:
 
 - Validation of appropriate input types (dtypes)
 
-    - Verification of appropriate values are only required if the values are not checked/verified elsewhere (such
+    - Verification of appropriate input values are only required if the values are not checked/verified elsewhere (such
       as at lower levels (e.g. the CSCs).
 
 - Testing of end-to-end functionality for the primary functions for appropriate inputs
@@ -313,7 +316,7 @@ Each utility must come with a set of tests (and test data if required), tests mu
 - Testing is *not* required for *all* possible input parameters and combinations
 
 
-The following level of integration tests (on the ncsa-integration test stand) are also required:
+The following level of integration tests (on the NCSA-integration test stand) are also required:
 
 - All jobs and utilities in the controls package must successfully pass all tests.
 
@@ -330,19 +333,13 @@ The following level of integration tests (on the ncsa-integration test stand) ar
     to test code that needs EFD data.
 
 
-.. Note::
-
-    There is a `Python library <https://pypi.org/project/deprecation/>`_ available that allows developers and users to
-    mark methods for deprecation using a decorator. It may be worth considering using this library.
-
-
 .. _Tasks:
 
 Jobs for the Queue
 ==================
 
 The Queue is the mechanism to run Jobs in an automated fashion during commissioning and
-operations. The level of robustness required for these Jobs is divided among those still in development, and those
+operations. The level of robustness required for these Jobs is divided among those still in development and those
 which are in full production.
 
 
@@ -350,23 +347,26 @@ Jobs in Development
 ^^^^^^^^^^^^^^^^^^^
 Jobs (scripts) undergoing development live in the `ts_queueJobsDevelop` repo. While in this repo, the Jobs are
 permitted to call utilities in the `Observing Utilities`_ repository as it will often be the case that the user is
-developing utilities to be used with a Job. Of course, it may also call any of the Control Packages or utilities. Jobs
-and utilities in these areas are expected to follow a standard format/template and conform to proper standards
+developing utilities to be used with a Job. Of course, it may also call any of the functionality in the Control
+Package Repository (`ts_observatory_control`). Jobs
+and utilities in the `ts_queueJobsDevelop` and `ts_observing_utilities` areas are expected to follow a standard
+format/template and conform to proper standards
 (PEP8 and appropriate LSST Development Guides). Pushing from a ticket branch to the develop branch of the repo
 requires a review (PR).
 
 There will (probably) exist cases where a Job will never be promoted to a production task. In this case, the jobs must
 be identified as such and will be subject to a higher level of documentation and required testing,
 particularly against any possible utilities that may be deprecated. Significant effort should be made to ensure
-that any persistent Jobs in this repo do not require anything in the `Observing Utilities`_ repository.
+that any persistent Jobs in this repo do not require anything in the `Observing Utilities`_ repository as it will not
+be stable with time.
 
 Required Testing
 ----------------
 
 In order to merge a branch to the develop branch, each job must:
 
-- Have correctly populated metadata (e.g. author(s), semi-accurate runtimes, description of script goals.
-  Data input/output etc.
+- Have correctly populated metadata (e.g. author(s), semi-accurate run-times, description of script goals,
+  input parameters, output data etc.
 - Have (and pass) a unit test showing the script is of a format that is capable of being executed
 
     - This will use the helper class in standardscripts already (BasescriptTestCase). This verifies the
@@ -418,6 +418,7 @@ Integration tests (on teststand):
 
     - Standard usage modes of the script should have tests. Non-standard functionality tests not strictly required
       but strongly recommended.
+
 - All other Jobs and Utilities must also be successfully passing all unit tests and pass tests run on the
   test-stand. Tests have to pass **before merging** not just at the time of PR.
 
