@@ -91,14 +91,14 @@ sections is discussed in detail below.
     A visual overview of the workflow process, starting from an original idea first demonstrated in a Jupyter notebook.
 
 The two-tiered development strategy is being adopted to facilitate maximum flexibility to implement changes on
-short timescales. The staging (or development) area gives users full range to simultaneously operate across multiple
+short timescales. The staging and development areas gives users full range to simultaneously operate across multiple
 versions/branches with unhindered flexibility. This is especially important for commissioning activities where rapid
 code changes are required and temporary implementation is required which will break other people's code in the same
 area.
 
 The production area is to provide a single code base where all code in that area (on the master/develop branches) is
 fully functional at all times. This will be most important during operations when the codebase will be less dynamic
-but will also be useful for different commissioning teams that will circle through and want an established and bug-free
+but will also be useful for different commissioning teams that will circle through and want an established and stable
 repository to start from without having to diagnose what changes the previous group has made to facilitate their
 goals. This area of the codebase will also require larger amounts of
 testing in order to ensure that changes made in one area do not result in breaking code in another.
@@ -108,7 +108,8 @@ testing in order to ensure that changes made in one area do not result in breaki
 .. note::
 
     This technote avoids the use of the term "scripts" and also assumes the current scriptQueue has been renamed to
-    "Queue".
+    "Queue". The renaming of the scripts and scriptQueue is being discussed elsewhere. The document will be updated
+    upon resolution of the ticket.
 
 
 .. _notebooks:
@@ -150,8 +151,10 @@ It is understood that the practice of storing notebooks, particularly the person
 commissioning. It is anticipated that this repo will split
 into multiple components such as example notebooks, operations-focused notebooks (where they will be run by operators
 to diagnose or characterize certain behaviour), and personal notebooks. The details of this organization are beyond the
-scope of this technote. Until the re-organisation is completed, tags will be made of the repo at least every ~6 months,
-after which all files larger than 20 MB (TBR) or older than 1 year will be deleted from the develop branch.
+scope of this technote. Until the re-organisation is completed, tags will be made of the repo at least every 6 months
+or before/after major
+activities. After each release, user will be asked to review and possibly remove notebooks older than 1 year to make
+sure stale notebooks are not lingering alongside the main working branch.
 
 .. note::
 
@@ -312,6 +315,8 @@ Each utility must come with a set of tests (and accompanying data if required), 
 - Testing of end-to-end functionality for the primary functions for appropriate inputs
 
     - E.g. does it correctly measure the centroid on a piece of test data to within a given tolerance?
+
+- Testing that common edge cases are properly captured/treated
 
 - Testing is *not* required for *all* possible input parameters and combinations
 
