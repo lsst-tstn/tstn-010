@@ -5,6 +5,8 @@
 
 .. sectnum::
 
+.. TODO: EDIT ts_standardscripts and other links to point to new repo locations upon completion of renaming
+
 
 Introduction
 ===============
@@ -16,7 +18,8 @@ regularly maintained script as part of operations.
 Documented below are the details for each step include which repos should be used for the different aspects of
 development and the level of
 testing/review required at each stage. The note is built upon a sample use-case which was encountered early on in the
-commissioning phase of the AuxTel, where a user wants to derive a high-level piece of functionality which requires
+commissioning phase of the Auxiliary Telescope, where a user wants to derive a high-level piece of functionality which
+requires
 new additions to code at multiple levels to implement as a final production script. In short, the use-case is:
 
     - Slew to a target
@@ -77,14 +80,24 @@ Jupyter notebooks
 Jupyter notebooks (henceforth referred to as notebooks) will be the primary tool used in system verification
 and commissioning. The use of them is not strictly required, however the environment permits the simultaneous
 control of observatory functionality, data reduction/analysis tasks and documentation and is supported by the project.
-This is the natural starting point for development of ideas
-and demonstrating proof of concept(s). In the use-case referenced in this technote, notebooks are the starting point,
-where the user is free to do as they wish with its structure/content etc.
+This is the natural starting point for development of ideas and demonstrating proof of concept(s). In the use-case
+referenced in this technote, notebooks are the starting point, where the user is free to do as they wish with its
+structure/content etc.
+
+.. Important::
+    Notebooks are *not* to hold functional code over extended periods of time (~2 weeks) nor are they meant to
+    augment observatory control software. If a piece of code (e.g. a function) developed in a notebook and is useful
+    then it must be moved into a function in the development repositories discussed below.
+
+A general rule of thumb is that if one finds themselves copying/pasting code from a notebook to another, then that code
+should not be in a notebook! It is expected that if something is developed during a commissioning activity or
+observing run that this function be moved in short order. If one does not have the know-how to do this then ask for
+assistance from other observatory personnel.
 
 User's notebooks are currently stored in the `ts_notebooks <https://github.com/lsst-ts/ts_notebooks>`_ repository.
 There is also a section where individuals create
 directories with their identifying username (e.g. pingraham or tribeiro). Notebooks should be cleared of all
-data prior to committing/pushing, to prevent the repo size from ballooning.
+data prior to committing/pushing, to prevent the repo size from rapid expansion in physical disk usage.
 The repo also holds a series of `examples` which ranges from telescope operation to EFD mining/analysis.
 
 Users should still follow the T&S development guidelines when using this repo. That means, create a ticket
@@ -92,17 +105,20 @@ branch to work on, commit code and, once ready, open a PR to have their work int
 `develop` branch. Content added to the users directory are still subjected to the PR process but only
 to guarantee that the content was cleared out and that no changes where made to other users
 content (without permission). Contents in the `examples` directory will be subject to a more
-rigorous review process and will require continuous integration (CI) testing.
+rigorous review process and will require continuous integration (CI) testing upon availability.
 
 .. note::
 
-    DM is working on a CI solution for notebooks but it would mandate that the tests be run from a place where the
-    data is accessible (e.g. the LSP). Hopefully we can set something up on the ncsa-integration-teststand
-    and apply this (or a similar) method.
+    A solution to implementing CI testing for notebooks is in development. This section will be updated upon
+    release of the CI methodology.
+
 
 .. note::
-    Mocking CSC or control class functionality may be required to perform tests will real data. Mocks are also useful
-    in other aspects of development. The usefulness and functionality of the mocks has been demonstrated but additional
+    If one is developing on the NCSA teststand, the mocking CSC or control class functionality may be required to
+    perform tests with real data. Mocks are also useful
+    in other aspects of development. Mocks are not simulators, but are generally empty classes/functions such that
+    development can occur without causing import errors from libraries that are not meant to be run locally.
+    The usefulness and functionality of the mocks has been demonstrated but additional
     work is required to fully incorporate them into the development workflow.
 
 It is understood that the practice of storing notebooks, particularly the personal notebooks, will not scale into
@@ -134,12 +150,19 @@ an `LSST standard package format <https://github.com/lsst/templates>`_.
 Users develop their functions on a branch and the functions shall go through a review (PR) process prior to being
 merged to the develop branch. This area is designed to act as a staging area prior to having their functionality either
 moved into control packages, or promoted to sanctioned utilities which would be contained in the
-`ts_observatory_controls` repo (discussed in `Control Packages`_ section).
+`ts_observatory_control <https://github.com/lsst-ts/ts_observatory_control>`_ repo (discussed in the
+`Control Packages`_ section).
 
 The development practices of this area are purposefully loose to promote rapid coding and integration.
 
-Required Testing:
-^^^^^^^^^^^^^^^^^
+.. Note::
+
+    There is a `Python library <https://pypi.org/project/deprecation/>`_ available that allows developers and users to
+    mark methods for deprecation using a decorator. It may be worth considering using this library to prevent bit-rot.
+
+
+Required Testing
+^^^^^^^^^^^^^^^^
 
 Requirements on code prior to merging are minimal. In short, the code should be runnable and should be documented
 at a level such that other people can identify what it does, as well as the inputs and outputs.
@@ -151,11 +174,6 @@ at a level such that other people can identify what it does, as well as the inpu
     is because changes in this repo do not require all tests in the production code areas to be run which could
     therefore lead to breakages.
 
-.. Note::
-
-    There is a `Python library <https://pypi.org/project/deprecation/>`_ available that allows developers and users to
-    mark methods for deprecation using a decorator. It may be worth considering using this library to prevent bit-rot.
-
 
 .. _Control Packages:
 
@@ -165,7 +183,8 @@ Control Packages perform coordination of CSC functionality at a high-level. An e
 is slewing the telescope and dome, discussed in more detail below. Because these packages (often written as classes)
 are used throughout many areas of operations, more significant levels of unit and integration testing are required;
 especially if utilities are contained outside the class. High-level control packages live in their own repository
-(`ts_observatory_controls`). These classes are written and tightly controlled by the T&S team.
+(`ts_observatory_control <https://github.com/lsst-ts/ts_observatory_control>`_    ).
+These classes are written and tightly controlled by the T&S team.
 
 As mentioned in the introduction, the master and develop branches of this codebase shall be entirely runnable at
 all times.
@@ -336,7 +355,7 @@ In order to merge a branch to the develop branch, each script shall:
       It does not check format/readability/sensible inputs etc.
 
 
-No integration testing (on the ncsa-teststand) is strictly required, however, one would hope that the script has run
+No integration testing (on the NCSA-teststand) is strictly required, however, one would hope that the script has run
 successfully through the integration-test-stand or on the summit.
 
 
@@ -363,7 +382,8 @@ In order to merge to develop the following level of testing shall be implemented
 
 - Have (and pass) a unit test showing the script is of a format that is capable of being executed
 
-    - This will use the helper class in standardscripts already (BasescriptTestCase). This verifies the
+    - This will use the helper class in ts_scripts (currently ts_standardscripts) already (BasescriptTestCase).
+      This verifies the
       classes/functions conform with the baseclass and verifies the script won't fail due to syntax etc.
       It does not check format/readability/sensible inputs
 
@@ -371,7 +391,7 @@ In order to merge to develop the following level of testing shall be implemented
 - Unit testing of called utilities are not re-tested here, unless required by special circumstance
 
 
-Integration tests (on teststand):
+Integration tests (on the NCSA teststand):
 
 - Script shall run successfully through the integration-test-stand using a test dataset.
 
