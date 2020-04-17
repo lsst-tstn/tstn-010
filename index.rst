@@ -7,32 +7,37 @@
 
 .. TODO: EDIT ts_standardscripts and other links to point to new repo locations upon completion of renaming
 
+.. TODO: remove hard wrapping (and let the editor use soft-wrapping)
+
+.. note::
+
+    This technote is to detail out the observing scripts and Jupyter notebook development cycle from a simple test or idea, developed inside a notebook, to evolving into a method that could be called by other notebooks, and/or into a ``Script`` to be called via the scriptQueue, then finally to the level of being a sanctioned and regularly maintained Script as part of operations.
+
 
 Introduction
 ===============
-This technote is to detail out the observing scripts and notebook development cycle from a simple test
-or idea, developed inside a notebook, to evolving into a method that could be called by other
-notebooks, and/or into a script to be called via the scriptQueue, then finally to the level of being a sanctioned and
-regularly maintained script as part of operations.
 
-Documented below are the details for each step include which repos should be used for the different aspects of
-development and the level of
-testing/review required at each stage. The note is built upon a sample use-case which was encountered early on in the
-commissioning phase of the Auxiliary Telescope, where a user wants to derive a high-level piece of functionality which
-requires
-new additions to code at multiple levels to implement as a final production script. In short, the use-case is:
+The Rubin Observatory control system has been designed such that it enbles astronomers and developers a great deal of flexibility when it comes to developing strategies for testing, system verification, commissioning, engineering and observations. Nevertheless, in order to take full advantage of this flexibility a process needs to be in place to allow the incorporation of these processes back into the observatory sanctioned mainstream code base. This technical note details such process from the initial exploratory phase all the way to a final sanctioned product.
 
-    - Slew to a target
-    - Take an image and perform basic instrument-signature-removal (ISR) such that it can be analyzed, notably bias
-      subtraction and cosmic-ray rejection/interpolation.
-    - Find the brightest point source in the image and calculate the telescope offset required to
-      put the star on a specific pixel (within a tolerance).
-    - Perform a series of observations using multiple instrument setups and exposure times.
-      This will also require changing telescope focus (and pointing) for each filter/grating configuration.
+Documented below are the details for each step in the development process, including which repos should be used for
+the different aspects of development as well as the level of testing and peer-review required at each stage. The
+technote is built upon a sample use-case encountered early on in the commissioning phase of the Auxiliary
+Telescope. In this use-case, the user wants to derive a high-level piece of functionality requiring new additions
+to software at multiple levels to enable the implementation of a final production ``Script``. A top-level overview
+of the use-case
+is as follows:
+
+    - Slew to a target -- Using existing functionality in the ``ATCS`` class
+    - Take an image -- Using existing functionality in the ``LATISS`` class
+    - Perform basic instrument-signature-removal (ISR) such that it can be analyzed, notably bias
+      subtraction and cosmic-ray rejection/interpolation. -- Functionality exists in the science pipeline code but requires configuration for this application
+    - Find the brightest point source in the image -- This functionality exists in the science pipeline code but requires configuration for this application
+    - Calculate the telescope offset required to put the star on a specific pixel (within a tolerance) -- Required new functionality
+    - Perform a series of observations using multiple instrument setups and exposure times. -- Requires new functionality to change the telescope focus (and pointing) for each filter/grating configuration.
 
 A general overview of the development flow, as viewed from the user, is as follows:
 
-    - Draft, test and flush-out their desired functionality in a notebook.
+    - Draft, test and flush-out their desired functionality in a Jupyter notebook.
 
       This may include creating drafts of functions (e.g. calculating offsets), performing calls to high-level classes
       (e.g. slew telescope) etc.
@@ -40,14 +45,14 @@ A general overview of the development flow, as viewed from the user, is as follo
     - Create observing utilities to perform specific tasks, which may be sufficiently generic such that they may be used
       by other use-cases (e.g. the function of finding a star and calculating the offset to pixel [x,y]).
 
-    - Create a script, which is runnable by the scriptQueue, to perform these tasks.
+    - Create a ``Script``, which is runnable by the scriptQueue, to perform these tasks.
 
       Note that at this point the utilities may still be rough, and certain functionality might be better accomplished
-      in lower classes (e.g. attcs) but that functionality does not yet exist.
+      in lower classes (e.g. atcs) but that functionality does not yet exist.
 
-    - Request new functionality in lower-level control classes (e.g. attcs)
+    - Request new functionality in lower-level control classes (e.g. atcs)
 
-    - Migrate/evolve the utilities and script to a production level for regular use with the scriptQueue
+    - Migrate/evolve the utilities and ``Script`` to a production level for regular use with the scriptQueue
 
 How the workflow moves through the various repositories is represented by the following diagram, where each of the
 sections is discussed in detail below.
@@ -75,7 +80,7 @@ testing in order to ensure that changes made in one area do not result in breaki
 
 .. _notebooks:
 
-Jupyter notebooks
+Jupyter Notebooks
 =================
 Jupyter notebooks (henceforth referred to as notebooks) will be the primary tool used in system verification
 and commissioning. The use of them is not strictly required, however the environment permits the simultaneous
@@ -136,14 +141,7 @@ sure stale notebooks are not lingering alongside the main working branch.
 Observing Utilities
 ====================
 
-Observing utilities are user-defined methods that perform tasks that are not already part of the control packages code
-base that operates the observatory (the `Control Packages`_ section discusses this in further detail).
-An example of functionality contained in a
-utility would be the reduction/analysis of an image. In the use-case discussed in this document, the user defines
-methods that perform basic ISR on an image, finds the center of the star, and calculates the required offset. In the
-cases where image reduction and/or analysis is required, specifically for ComCam and LSSTCamera images, the
-processing will utilize the `OCS Controlled Pipeline Service (OCPS) <https://dmtn-133.lsst.io/>`_, which is still
-undergoing design and development. More details on it's use during development will be added once available.
+Observing utilities are user-defined methods that perform tasks that are not already part of the base control packages (the `Control Packages`_ section discusses this in further detail). An example of functionality contained in a utility would be the reduction/analysis of an image. In the use-case discussed in this document, the user defines methods that perform basic ISR on an image, finds the center of the star, and calculates the required offset. In the cases where image reduction and/or analysis is required, specifically for ComCam and LSSTCamera images, the processing may utilize the `OCS Controlled Pipeline Service (OCPS) <https://dmtn-133.lsst.io/>`_, which is still undergoing design and development. More details on it's use during development will be added once available.
 
 The repo sanctioned for the development and use of such functions is the `ts_observing_utilities` repo, which follows
 an `LSST standard package format <https://github.com/lsst/templates>`_.
@@ -170,7 +168,7 @@ at a level such that other people can identify what it does, as well as the inpu
 
 .. Important::
 
-    Code this repo is *not* allowed to be called by production level scripts *that are not on a ticket branch*. This
+    Code in this repo is *not* allowed to be called by production level Scripts *that are not on a ticket branch*. This
     is because changes in this repo do not require all tests in the production code areas to be run which could
     therefore lead to breakages.
 
@@ -197,7 +195,7 @@ developed in a utility (in `ts_observing_utilities`).
 
 To remedy this, the proper path forward is to request that the additional functionality be added. To do this,
 the user should file a JIRA ticket with the requested functionality for review in the DM project with the
-team set to Telescope and Site. This will trigger discussion on whether
+team set to Telescope and Site. Make sure to add interested parties as watchers/reviewers to ensure sufficient visibility. This will trigger discussion on whether
 the functionality should indeed be implemented. Upon conclusion of that discussion, a user can either wait for it to be
 implemented or make the changes themselves and submit a pull-request.
 
@@ -208,10 +206,10 @@ Control Package Examples
 ^^^^^^^^^^^^^^^^^^^^^^^^
 The following are examples of classes written to perform basic control operations of the telescope, dome and instrument.
 
-ATTCS
+ATCS
 -----
-The `ATTCS class <https://github.com/lsst-ts/ts_standardscripts/blob/develop/python/
-lsst/ts/standardscripts/auxtel/attcs.py>`_ contains methods that coordinate telescope and dome related CSCs. The class
+The `ATCS class <https://github.com/lsst-ts/ts_standardscripts/blob/develop/python/
+lsst/ts/standardscripts/auxtel/atcs.py>`_ contains methods that coordinate telescope and dome related CSCs. The class
 includes methods that
 capture complex activities in single lines of executable code such as slewing the telescope and dome (shown in the
 example below), offsetting in multiple coordinate systems, starting/stopping of tracking etc.
@@ -219,26 +217,26 @@ Any required low-level (non-CSC) functionality should be pushed into these class
 
 .. note::
 
-    At the moment the attcs at latiss classes live in
+    At the moment the atcs at latiss classes live in
     `ts_standardscripts <https://github.com/lsst-ts/ts_standardscripts>`_ but
     will migrate to `ts_observatory_control` upon agreement upon the restructuring presented in this document.
 
 .. code-block:: python
 
-    from lsst.ts.standardscripts.auxtel.attcs import ATTCS
-    attcs = ATTCS()
-    await attcs.start_task
-    await attcs.slew_icrs(ra="20:25:38.85705", dec="-56:44:06.3230", sky_pos=0., target_name="Alf Pav")
+    from lsst.ts.standardscripts.auxtel.atcs import ATCS
+    atcs = ATCS()
+    await atcs.start_task
+    await atcs.slew_icrs(ra="20:25:38.85705", dec="-56:44:06.3230", sky_pos=0., target_name="Alf Pav")
 
-Alternatively, the `ATTCS` class also provides a `slew_object` method that queries
+Alternatively, the `TTCS` class also provides a `slew_object` method that queries
 the object coordinate from `Simbad <http://simbad.u-strasbg.fr/simbad/>`_.
 
 .. code-block:: python
 
-    from lsst.ts.standardscripts.auxtel.attcs import ATTCS
-    attcs = ATTCS()
-    await attcs.start_task
-    await attcs.slew_object(name="Alf Pav", sky_pos=0.)
+    from lsst.ts.standardscripts.auxtel.atcs import ATCS
+    atcs = ATCS()
+    await atcs.start_task
+    await atcs.slew_object(name="Alf Pav", sky_pos=0.)
 
 
 LATISS
@@ -263,13 +261,13 @@ Control Package Utilities
 
 Control Package Utilities are analogous to the utilities discussed in `Observing Utilities`_, but have been evolved and
 moved into the production code areas. Sanctioned Control Utilities will exist at multiple levels.
-These utilities will primarily be called by scripts for the scriptQueue, but not in all cases.
+These utilities will primarily be called by ``Scripts`` for the scriptQueue, but not in all cases.
 Top-level utilities will apply to both telescopes, all instruments, then each level down will have it's own utilities.
 An example of this could (not necessarily will) be the centering utility described above, since the desired
 position for stars in LATISS will differ from the main telescope.
 
 Utilities should be as atomic as possible and may not perform actions that get performed by the control classes
-(e.g. ATTCS and LATISS), such as slewing the telescope.
+(e.g. ATCS and LATISS), such as slewing the telescope.
 
 The utilities will live in the `ts_observatory_control` repo with the Control Classes.
 
@@ -299,7 +297,7 @@ Each utility shall come with a set of tests (and accompanying data if required),
 
 The following level of integration tests (on the NCSA-integration test stand) are also required:
 
-- All scripts and utilities in the controls package shall successfully pass all tests.
+- All ``Scripts`` and utilities in the controls package shall successfully pass all tests.
 
     - Ideally this would be done automatically using a CI framework. If not available, then an artifact needs
       to be shown as part of PR
@@ -307,9 +305,9 @@ The following level of integration tests (on the NCSA-integration test stand) ar
 
 
 .. TODO::
-    DM has developed a way to do this, we should explore if this solution works for this case as well.
+    DM is developing a way to do this and it will be explored if the solution is applicable here as well.
     For test data used in unit tests DM uses git-lfs to store repositories that are set up as eups packages.
-    Another possible solution is Travis, which is used to test the LSST EFD helper class.
+    Another possible solution is Travis, which is used to test the LSST EFD helper class and/or Jenkins.
     Docker spins a temporary influxDB instance and loads test EFD data into it. A similar pattern could be loaded
     to test code that needs EFD data.
 
@@ -317,59 +315,61 @@ The following level of integration tests (on the NCSA-integration test stand) ar
 .. _Tasks:
 
 Scripts for the scriptQueue
-===========================
+===============================
 
-The scriptQueue is the mechanism to run scripts in an automated fashion during commissioning and
-operations. The level of robustness required for these scripts is divided among those still in development and those
+The scriptQueue is the mechanism to run ``Scripts`` in an automated fashion during commissioning and
+operations. The level of robustness required for these ``Scripts`` is divided among those still in development and those
 which are in full production.
 
 
 Scripts in Development
 ^^^^^^^^^^^^^^^^^^^^^^
-Scripts undergoing development live in the `ts_scriptsDevelop` repo. While in this repo, the scripts are
+``Scripts`` undergoing development live in the `ts_scriptsDevelop` repo. While in this repo, the ``Scripts`` are
 permitted to call utilities in the `Observing Utilities`_ repository as it will often be the case that the user is
-developing utilities to be used with a script. Of course, it may also call any of the functionality in the Control
+developing utilities to be used with a ``Script``. Of course, it may also call any of the functionality in the Control
 Package Repository (`ts_observatory_control`). Scripts
 and utilities in the `ts_scriptsDevelop` and `ts_observing_utilities` areas are expected to follow a standard
 format/template and conform to proper standards
 (PEP8 and `TSSW Development Guide <https://tssw-developer.lsst.io/>`_ ). Pushing from a ticket branch to the develop
 branch of the repo requires a review (PR).
 
-There will (probably) exist cases where a script will never be promoted to a production task. In this case, the scripts
+Usage of the `ts_scriptsDevelop` repository as opposed to a branch of `ts_scripts` is encouraged for when development is of higher complexity and will occur over a longer timespan. For example, a ``Script`` may be developed during a run but requires further development/testing in coming runs. This was the case in developing the `latiss_cwfs_align` script for performing focus/collimation of the Auxiliary Telescope. Because interfaces, CSCs and high-level classes were undergoing regular changes in this time, it was more practical to merge `latiss_cwfs_align` to the develop branch between runs and update it when applicable.
+
+
+There will (probably) exist cases where a ``Script`` will never be promoted to a production task. In this case, the ``Scripts``
 shall be identified as such and will be subject to a higher level of documentation and required testing,
 particularly against any possible utilities that may be deprecated. Significant effort should be made to ensure
-that any persistent scripts in this repo do not require anything in the `Observing Utilities`_ repository as it will not
+that any persistent ``Scripts`` in this repo do not require anything in the `Observing Utilities`_ repository as it will not
 be stable with time.
 
 Required Testing
 ----------------
 
-In order to merge a branch to the develop branch, each script shall:
+In order to merge a branch to the develop branch, each ``Script`` shall:
 
-- Have correctly populated metadata (e.g. author(s), semi-accurate run-times, description of script goals,
+- Have correctly populated metadata (e.g. author(s), semi-accurate run-times, description of goals,
   input parameters, output data etc.
-- Have (and pass) a unit test showing the script is of a format that is capable of being executed
+- Have (and pass) a unit test demonstrating that is it is of proper format and capable of being executed
 
-    - This will use the helper class in standardscripts already (BasescriptTestCase). This verifies the
-      classes/functions conform with the baseclass and verifies the script won't fail due to syntax etc.
-      It does not check format/readability/sensible inputs etc.
+    - This is best accomplished using the BaseScriptTestCase helper class already available in ts_scripts (currently ts_standardscripts). This verifies the classes/functions conform with the baseclass and verifies the ``Script`` won't fail due to syntax etc. It does not check format/readability/sensible inputs etc.
 
+This can be accomplished by using the BaseScriptTestCase helper class already available in ts_scripts (currently ts_standardscripts).
 
 No integration testing (on the NCSA-teststand) is strictly required, however, one would hope that the script has run
 successfully through the integration-test-stand or on the summit.
 
 
 Scripts in Production
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Scripts in full production are to be kept in the `ts_scripts` repository. This is the last step in the
-development process. Scripts in this category are tightly controlled and standards are strictly enforced. No production
-level script can call any utility in the `Observing Utilities`_ repository. All called utilities shall be sanctioned
-Control Package Utilities. All scripts in this repository shall be runnable at all times by any operator. All code
+``Scripts`` in full production are to be kept in the `ts_scripts` repository. This is the last step in the
+development process. ``Scripts`` in this category are tightly controlled and standards are strictly enforced. No production
+level ``Script`` can call any utility in the `Observing Utilities`_ repository. All called utilities shall be sanctioned
+Control Package Utilities. All ``Scripts`` in this repository shall be runnable at all times by any operator. All code
 shall be documented at a level where other developers can diagnose the
-code and fix any issues that are resulting in failed tests. This shall include a description of the script, a
+code and fix any issues that are resulting in failed tests. This shall include a description of the ``Script``, a
 description of the inputs/outputs, and depending on the complexity of the function an example may be required.
-All required metadata for the script shall be accurate (e.g. completion times). The following testing requirements shall
+All required metadata for the ``Script`` shall be accurate (e.g. completion times). The following testing requirements shall
 also be met.
 
 
@@ -380,11 +380,11 @@ In order to merge to develop the following level of testing shall be implemented
 
 - Code shall be fully documented.
 
-- Have (and pass) a unit test showing the script is of a format that is capable of being executed
+- Have (and pass) a unit test showing the ``Script`` is of a format that is capable of being executed
 
     - This will use the helper class in ts_scripts (currently ts_standardscripts) already (BasescriptTestCase).
       This verifies the
-      classes/functions conform with the baseclass and verifies the script won't fail due to syntax etc.
+      classes/functions conform with the baseclass and verifies the ``Script`` won't fail due to syntax etc.
       It does not check format/readability/sensible inputs
 
 - Validation of inputs (checks dtypes not the values themselves)
@@ -393,12 +393,12 @@ In order to merge to develop the following level of testing shall be implemented
 
 Integration tests (on the NCSA teststand):
 
-- Script shall run successfully through the integration-test-stand using a test dataset.
+- ``Script`` shall run successfully through the integration-test-stand using a test dataset.
 
-    - Standard usage modes of the script should have tests. Non-standard functionality tests not strictly required
+    - Standard usage modes of the ``Script`` should have tests. Non-standard functionality tests not strictly required
       but strongly recommended.
 
-- All other scripts and utilities shall also be successfully passing all unit tests and pass tests run on the
+- All other ``Scripts`` and utilities shall also be successfully passing all unit tests and pass tests run on the
   test-stand. Tests have to pass **before merging** not just at the time of PR.
 
 
