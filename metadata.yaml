@@ -41,12 +41,12 @@ copyright: "2020, Association of Universities for Research in Astronomy, Inc. (A
 description: "This technote is to detail out the observing script and notebook development cycle from a simple test or idea, developed inside a notebook, to evolving into a method that could be called by other notebooks, and/or into a script to be called via the scriptQueue. Details include what repos should be used for development, and what level of testing/review is required to move to subsequent steps."
 
 # Abstract, if available
-abstract: "asdfasdfasdf
-           Write your paragraph
-           here with multiple lines.
+# abstract: >
+#           Write your paragraph
+#           here with multiple lines.
+#
+#           You can have multiple paragraphs too.
 
-           You can have multiple paragraphs too.
-            "
 
 # URL where this document is published by Read the Docs. e.g. http://sqr-001.lsst.codes
 url: "https://tstn-010.lsst.io"

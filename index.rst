@@ -17,7 +17,7 @@
 Introduction
 ===============
 
-The Rubin Observatory control system has been designed such that it enbles astronomers and developers a great deal of flexibility when it comes to developing strategies for testing, system verification, commissioning, engineering and observations. Nevertheless, in order to take full advantage of this flexibility a process needs to be in place to allow the incorporation of these processes back into the observatory sanctioned mainstream code base. This technical note details such process from the initial exploratory phase all the way to a final sanctioned product.
+The Rubin Observatory control system has been designed such that it enables astronomers and developers a great deal of flexibility when it comes to developing strategies for testing, system verification, commissioning, engineering and observations. Nevertheless, in order to take full advantage of this flexibility a process needs to be in place to allow the incorporation of these processes back into the observatory sanctioned mainstream code base. This technical note details such process from the initial exploratory phase all the way to a final sanctioned product.
 
 Documented below are the details for each step in the development process, including which repos should be used for
 the different aspects of development as well as the level of testing and peer-review required at each stage. The
