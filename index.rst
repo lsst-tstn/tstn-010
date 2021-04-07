@@ -99,8 +99,8 @@ Notebooks should be cleared of all data prior to committing/pushing, to prevent 
 The repo also holds a series of `examples` which ranges from telescope operation to EFD mining/analysis.
 
 Users should still follow the T&S development guidelines when using this repo.
-That means, create a ticket branch to work on, commit code and, once ready, open a PR to have their work integrated to the `develop` branch.
-Content added to the users directory are still subjected to the PR process but only to guarantee that the content was cleared out and that no changes where made to other users content (without permission).
+That means, create a ticket branch to work on, commit code and, once ready, open a pull-request to have their work integrated to the `develop` branch.
+Content added to the users directory are still subjected to the pull-request process but only to guarantee that the content was cleared out and that no changes where made to other users content (without permission).
 Contents in the `examples` directory will be subject to a more rigorous review process and will require continuous integration (CI) testing upon availability.
 
 .. note::
@@ -231,15 +231,13 @@ are captured correctly.
 Control Package Utilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Control Package Utilities are analogous to the utilities discussed in `Observing Utilities`_, but have been evolved and
-moved into the production code areas. Sanctioned Control Utilities will exist at multiple levels.
+Control Package Utilities are analogous to the utilities discussed in `Observing Utilities`_, but have been evolved and moved into the production code areas.
+Sanctioned Control Utilities will exist at multiple levels.
 These utilities will primarily be called by SAL Scripts for the scriptQueue, but not in all cases.
 Top-level utilities will apply to both telescopes, all instruments, then each level down will have it's own utilities.
-An example of this could (not necessarily will) be the centering utility described above, since the desired
-position for stars in LATISS will differ from the main telescope.
+An example of this could (not necessarily will) be the centering utility described above, since the desired position for stars in LATISS will differ from the main telescope.
 
-Utilities should be as atomic as possible and may not perform actions that get performed by the control classes
-(e.g. ATCS and LATISS), such as slewing the telescope.
+Utilities should be as atomic as possible and may not perform actions that get performed by the control classes (e.g. ATCS and LATISS), such as slewing the telescope.
 
 The utilities live in the `ts_observatory_control`_ repo with the Control Classes.
 
@@ -247,9 +245,8 @@ The utilities live in the `ts_observatory_control`_ repo with the Control Classe
 Required Testing
 ----------------
 
-All code in the `ts_observatory_control`_ requires documentation to a level where other developers can diagnose the
-utility and fix any issues that are resulting in failed tests. This shall include a description of the utility, a
-description of the inputs/outputs, and depending on the complexity of the function, examples may be required.
+All code in the `ts_observatory_control`_ requires documentation to a level where other developers can diagnose the utility and fix any issues that are resulting in failed tests.
+This shall include a description of the utility, a description of the inputs/outputs, and depending on the complexity of the function, examples may be required.
 
 Each utility shall come with a set of tests (and accompanying data if required), tests shall include:
 
@@ -280,8 +277,8 @@ The following level of integration tests (on the NCSA-integration test stand) ar
     DM is developing a way to do this and it will be explored if the solution is applicable here as well.
     For test data used in unit tests DM uses git-lfs to store repositories that are set up as eups packages.
     Another possible solution is Travis, which is used to test the LSST EFD helper class and/or Jenkins.
-    Docker spins a temporary influxDB instance and loads test EFD data into it. A similar pattern could be loaded
-    to test code that needs EFD data.
+    Docker spins a temporary influxDB instance and loads test EFD data into it.
+    A similar pattern could be loaded to test code that needs EFD data.
 
 
 .. _Tasks:
@@ -289,60 +286,59 @@ The following level of integration tests (on the NCSA-integration test stand) ar
 SAL Scripts for the scriptQueue
 ===============================
 
-The scriptQueue is the mechanism to run SAL Scripts in an automated fashion during commissioning and
-operations. The level of robustness required for these SAL Scripts is divided among those still in development and those
-which are in full production.
+The scriptQueue is the mechanism to run SAL Scripts in an automated fashion during commissioning and operations.
+The level of robustness required for these SAL Scripts is divided among those still in development and those which are in full production.
 
 
 SAL Scripts in Development
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-SAL Scripts undergoing development live in the `ts_externalscripts`_ repo. While in this repo, the SAL Scripts are
-permitted to call utilities in the `ts_observing_utilities`_ repository as it will often be the case that the user is
-developing utilities to be used with a SAL Script. Of course, it may also call any of the functionality in the Control
-Package Repository (`ts_observatory_control`_). Scripts
-and utilities in the `ts_externalscripts`_ and `ts_observing_utilities`_ areas are expected to follow a standard
-format/template and conform to proper standards
-(PEP8 and `TSSW Development Guide <https://tssw-developer.lsst.io/>`_ ). Pushing from a ticket branch to the develop
-branch of the repo requires a review (PR).
+SAL Scripts undergoing development live in the `ts_externalscripts`_ repo.
+While in this repo, the SAL Scripts are permitted to call utilities in the `ts_observing_utilities`_ repository as it will often be the case that the user is developing utilities to be used with a SAL Script.
+Of course, it may also call any of the functionality in the Control Package Repository (`ts_observatory_control`_).
+Scripts and utilities in the `ts_externalscripts`_ and `ts_observing_utilities`_ areas are expected to follow a standard format/template and conform to proper standards (PEP8 and `TSSW Development Guide <https://tssw-developer.lsst.io/>`_ ).
+Pushing from a ticket branch to the develop branch of the repo requires a review (PR).
 
-Usage of the `ts_externalscripts`_ repository as opposed to a branch of `ts_standardscripts`_ is encouraged for when development is of higher complexity and will occur over a longer timespan. For example, a SAL Script may be developed during a run but requires further development/testing in coming runs. This was the case in developing the `latiss_cwfs_align` script for performing focus/collimation of the Auxiliary Telescope. Because interfaces, CSCs and high-level classes were undergoing regular changes in this time, it was more practical to merge `latiss_cwfs_align` to the develop branch between runs and update it when applicable.
+Usage of the `ts_externalscripts`_ repository as opposed to a branch of `ts_standardscripts`_ is encouraged for when development is of higher complexity and will occur over a longer timespan.
+For example, a SAL Script may be developed during a run but requires further development/testing in coming runs.
+This was the case in developing the `latiss_cwfs_align` script for performing focus/collimation of the Auxiliary Telescope.
+Because interfaces, CSCs and high-level classes were undergoing regular changes in this time, it was more practical to merge `latiss_cwfs_align` to the develop branch between runs and update it when applicable.
 
 
-There will (probably) exist cases where a SAL Script will never be promoted to a production task. In this case, the SAL Scripts
-shall be identified as such and will be subject to a higher level of documentation and required testing,
-particularly against any possible utilities that may be deprecated. Significant effort should be made to ensure
-that any persistent SAL Scripts in this repo do not require anything in the `ts_observing_utilities`_ repository as it will not
-be stable with time.
+There will (probably) exist cases where a SAL Script will never be promoted to a production task.
+In this case, the SAL Scripts shall be identified as such and will be subject to a higher level of documentation and required testing,
+particularly against any possible utilities that may be deprecated.
+Significant effort should be made to ensure that any persistent SAL Scripts in this repo do not require anything in the `ts_observing_utilities`_ repository as it will not be stable with time.
 
 Required Testing
 ----------------
 
 In order to merge a branch to the develop branch, each SAL Script shall:
 
-- Have correctly populated metadata (e.g. author(s), semi-accurate run-times, description of goals,
-  input parameters, output data etc.
+- Have correctly populated metadata (e.g. author(s), semi-accurate run-times, description of goals, input parameters, output data etc.
 - Have (and pass) a unit test demonstrating that is it is of proper format and capable of being executed
 
-    - This is best accomplished using the BaseScriptTestCase helper class already available in `ts_standardscripts`_. This verifies the classes/functions conform with the baseclass and verifies the SAL Script won't fail due to syntax etc. It does not check format/readability/sensible inputs etc.
+    - This is best accomplished using the BaseScriptTestCase helper class already available in `ts_standardscripts`_.
+      This verifies the classes/functions conform with the baseclass and verifies the SAL Script won't fail due to syntax etc.
+      It does not check format/readability/sensible inputs etc.
 
 This can be accomplished by using the BaseScriptTestCase helper class already available in `ts_standardscripts`_.
 
-No integration testing (on the NCSA-teststand) is strictly required, however, one would hope that the script has run
-successfully through the integration-test-stand or on the summit.
+No integration testing (on the NCSA-teststand) is strictly required, however, one would hope that the script has run successfully through the integration-test-stand or on the summit.
 
 
 SAL Scripts in Production
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-SAL Scripts in full production are to be kept in the `ts_standardscripts`_ repository. This is the last step in the
-development process. SAL Scripts in this category are tightly controlled and standards are strictly enforced. No production
-level SAL Script can call any utility in the `ts_observing_utilities`_ repository. All called utilities shall be sanctioned
-Control Package Utilities. All SAL Scripts in this repository shall be runnable at all times by any operator. All code
-shall be documented at a level where other developers can diagnose the
-code and fix any issues that are resulting in failed tests. This shall include a description of the SAL Script, a
-description of the inputs/outputs, and depending on the complexity of the function an example may be required.
-All required metadata for the SAL Script shall be accurate (e.g. completion times). The following testing requirements shall
-also be met.
+SAL Scripts in full production are to be kept in the `ts_standardscripts`_ repository.
+This is the last step in the development process.
+SAL Scripts in this category are tightly controlled and standards are strictly enforced.
+No production level SAL Script can call any utility in the `ts_observing_utilities`_ repository.
+All called utilities shall be sanctioned Control Package Utilities.
+All SAL Scripts in this repository shall be runnable at all times by any operator.
+All code shall be documented at a level where other developers can diagnose the code and fix any issues that are resulting in failed tests.
+This shall include a description of the SAL Script, a description of the inputs/outputs, and depending on the complexity of the function an example may be required.
+All required metadata for the SAL Script shall be accurate (e.g. completion times).
+The testing requirements discussed in the following section shall also be met.
 
 
 Required Testing
@@ -355,8 +351,7 @@ In order to merge to develop the following level of testing shall be implemented
 - Have (and pass) a unit test showing the SAL Script is of a format that is capable of being executed
 
     - This will use the helper class in already in `ts_standardscripts`_ (BasescriptTestCase).
-      This verifies the
-      classes/functions conform with the baseclass and verifies the SAL Script won't fail due to syntax etc.
+      This verifies the classes/functions conform with the baseclass and verifies the SAL Script won't fail due to syntax etc.
       It does not check format/readability/sensible inputs
 
 - Validation of inputs (checks dtypes not the values themselves)
@@ -367,11 +362,11 @@ Integration tests (on the NCSA teststand):
 
 - SAL Script shall run successfully through the integration-test-stand using a test dataset.
 
-    - Standard usage modes of the SAL Script should have tests. Non-standard functionality tests not strictly required
-      but strongly recommended.
+    - Standard usage modes of the SAL Script should have tests.
+      Non-standard functionality tests not strictly required but strongly recommended.
 
-- All other SAL Script and utilities shall also be successfully passing all unit tests and pass tests run on the
-  test-stand. Tests have to pass **before merging** not just at the time of the pull request.
+- All other SAL Script and utilities shall also be successfully passing all unit tests and pass tests run on the test-stand.
+  Tests have to pass **before merging** not just at the time of the pull-request.
 
 
 .. .. rubric:: References
